@@ -3,9 +3,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
-from exception_logging.logger import logging
-from exception_logging.exception import CustomException
-from utils.data_loader import DataLoader
+from app.exception_logging.logger import logging
+from app.exception_logging.exception import CustomException
+from app.utils.data_loader import DataLoader
 import sys
 
 

@@ -7,8 +7,8 @@ import joblib
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import accuracy_score, classification_report, mean_squared_error, r2_score
-from exception_logging.exception import CustomException
-from config import (
+from app.exception_logging.exception import CustomException
+from app.config import (
     CLASSIFIERS, REGRESSORS, MODEL_PARAMS, GRID_SEARCH_PARAMS,
     TEST_SIZE, RANDOM_STATE, CROSS_VAL_FOLDS, MODEL_DIR
 )

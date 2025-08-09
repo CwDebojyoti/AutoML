@@ -4,23 +4,23 @@ from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import joblib
 import os
-from utils.data_loader import DataLoader
-from utils.data_cleaning import DataCleaner
-from utils.feature_engineering import FeatureEngineering  # Assuming you've created this
-from utils.feature_selection import FeatureSelector  # Assuming you've created this
-from utils.model_trainer import ModelTrainer
-from utils.model_evaluator import ModelEvaluator
-from utils.report_generator import ReportGenerator
-from config import MODEL_DIR
+from app.utils.data_loader import DataLoader
+from app.utils.data_cleaning import DataCleaner
+from app.utils.feature_engineering import FeatureEngineering  # Assuming you've created this
+from app.utils.feature_selection import FeatureSelector  # Assuming you've created this
+from app.utils.model_trainer import ModelTrainer
+from app.utils.model_evaluator import ModelEvaluator
+from app.utils.report_generator import ReportGenerator
+from app.config import MODEL_DIR
 
-def main():
+def main(file_path, target_column, features_to_drop):
     # Configure logging
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
     try:
         # Step 1: Load data
-        file_path = "data/Breast_cancer_dataset.csv"  # or any CSV you're testing with
-        target_column = "diagnosis"     # make sure this exists in the dataset
+        #file_path = "data/Breast_cancer_dataset.csv"  # or any CSV you're testing with
+        #target_column = "diagnosis"     # make sure this exists in the dataset
         loader = DataLoader(file_path, target_column)
         data, X, y, tc = loader.load_data()
 
@@ -29,7 +29,7 @@ def main():
         data, X_cleaned, y_cleaned, tc  = cleaner.clean_data()
 
         # Step 3: Drop unwanted features
-        features_to_drop = ['id', 'Unnamed: 32']  # Example — customize as needed
+        #features_to_drop = ['id', 'Unnamed: 32']  # Example — customize as needed
         selector = FeatureSelector(features_to_drop)
         X_selected = selector.drop_features(X_cleaned)
 
@@ -76,8 +76,8 @@ def main():
         report_gen = ReportGenerator()
         html_report = report_gen.generate_html_report(summaries)
         logging.info(f"HTML report generated at: {html_report}")
-        pdf_report = report_gen.generate_pdf_report(summaries)
-        logging.info(f"PDF report generated at: {pdf_report}")
+        # pdf_report = report_gen.generate_pdf_report(summaries)
+        # logging.info(f"PDF report generated at: {pdf_report}")
 
         # Show preview
         print("✅ Pipeline ran successfully.")
@@ -92,5 +92,5 @@ def main():
     except Exception as e:
         logging.error(f"❌ Pipeline failed: {str(e)}")
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

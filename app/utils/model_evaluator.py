@@ -15,8 +15,8 @@ from sklearn.metrics import (
 from sklearn.preprocessing import label_binarize
 from sklearn.model_selection import cross_val_score
 
-from config import REPORT_DIR, RANDOM_STATE, CROSS_VAL_FOLDS
-from exception_logging.exception import CustomException
+from app.config import REPORT_DIR, RANDOM_STATE, CROSS_VAL_FOLDS
+from app.exception_logging.exception import CustomException
 
 os.makedirs(REPORT_DIR, exist_ok=True)
 

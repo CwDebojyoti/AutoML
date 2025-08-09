@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>AutoML Dataset Upload</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body class="bg-light">
+
+  <div class="background d-flex align-items-center justify-content-center">
+    <div class="container">
+      <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+        <div class="card shadow-sm w-75">
+          <div class="card-body">
+            <h2 class="card-title text-center mb-4">Automated Machine Learning</h2>
+            <h4 class="text-center mb-4">Upload Dataset & Configure</h4>
+
+            <!-- Upload Form -->
+            <form id="uploadForm" enctype="multipart/form-data" action="/run_automl" method="POST">
+
+              <!-- CSV File Input -->
+              <div class="mb-3">
+                <label for="fileInput" class="form-label" style="color: white;">Upload CSV Dataset</label>
+                <input type="file" class="form-control" id="fileInput" name="file" accept=".csv" required>
+              </div>
+
+              <!-- Target Variable Dropdown -->
+              <div class="mb-3">
+                <label for="targetSelect" class="form-label" style="color: white;">Select Target Variable</label>
+                <select class="form-select" name="target_column" id="targetSelect" required>
+                  <option value="">-- Upload dataset first --</option>
+                </select>
+              </div>
+
+              <!-- Drop Columns Multi-Select -->
+              <div class="mb-3">
+                <label class="form-label" style="color: white;">Columns to Drop</label>
+                <div id="dropColumnsContainer"
+                  style="border: 1px solid #ccc; border-radius: 5px; padding: 10px; height: 150px; overflow-y: auto; color: white;">
+                  -- Upload dataset first --
+                </div>
+              </div>
+
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Start AutoML</button>
+              </div>
+            </form>
+
+            <hr class="my-4">
+            <div id="result" class="text-center"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Fetch column names after file upload
+    document.getElementById("fileInput").addEventListener("change", async function () {
+      const file = this.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Fetch column names from backend
+      const res = await fetch("/upload_data", {
+        method: "POST",
+        body: formData
+      });
+
+      const columns = await res.json();
+
+      const targetSelect = document.getElementById("targetSelect");
+      const dropContainer = document.getElementById("dropColumnsContainer");
+
+      // Clear existing
+      targetSelect.innerHTML = "";
+      dropContainer.innerHTML = "";
+
+      // Populate target variable dropdown
+      columns.forEach(col => {
+        const option = document.createElement("option");
+        option.value = col;
+        option.textContent = col;
+        targetSelect.appendChild(option);
+      });
+
+      // Populate checkboxes inside the dropColumnsContainer
+      columns.forEach(col => {
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("form-check");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.classList.add("form-check-input");
+        checkbox.name = "dropColumns";
+        checkbox.value = col;
+
+        const label = document.createElement("label");
+        label.classList.add("form-check-label");
+        label.textContent = col;
+
+        wrapper.appendChild(checkbox);
+        wrapper.appendChild(label);
+        dropContainer.appendChild(wrapper);
+      });
+    });
+
+    // Submit form for AutoML training
+    document.getElementById("uploadForm").addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const formData = new FormData(this);
+
+      // Collect selected drop columns from checkboxes
+      const dropCols = [];
+      document.querySelectorAll('input[name="dropColumns"]:checked').forEach(cb => {
+        dropCols.push(cb.value);
+      });
+      formData.append("dropColumns", JSON.stringify(dropCols));
+
+      const response = await fetch("/run_automl", {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await response.json();
+      document.getElementById("result").innerHTML = `
+    <h4 class="mt-4">AutoML Run Completed</h4>
+    <p><strong>Status:</strong> ${result.status}</p>
+    <p><strong>Report:</strong> <a href="${result.report_url}" target="_blank">View Report</a></p>
+  `;
+    });
+
+  </script>
+
+
+</body>
+
+</html>

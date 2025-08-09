@@ -1,9 +1,9 @@
 import os
 import sys
-from exception_logging.logger import logging
-from exception_logging.exception import CustomException
+from app.exception_logging.logger import logging
+from app.exception_logging.exception import CustomException
 import pandas as pd
-from utils.data_loader import DataLoader
+from app.utils.data_loader import DataLoader
 
 class DataCleaner:
     def __init__(self, data_loader: DataLoader):

@@ -1,7 +1,7 @@
 import os
 import sys
-from exception_logging.logger import logging
-from exception_logging.exception import CustomException
+from app.exception_logging.logger import logging
+from app.exception_logging.exception import CustomException
 import pandas as pd
 
 

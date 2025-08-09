@@ -3,8 +3,8 @@ import os
 import json
 import sys
 from typing import List, Union
-from config import REPORT_DIR
-from exception_logging.exception import CustomException
+from app.config import REPORT_DIR
+from app.exception_logging.exception import CustomException
 
 try:
     from weasyprint import HTML
