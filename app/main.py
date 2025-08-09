@@ -4,6 +4,7 @@ from utils.data_loader import DataLoader
 from utils.data_cleaning import DataCleaner
 from utils.feature_engineering import FeatureEngineering  # Assuming you've created this
 from utils.feature_selection import FeatureSelector  # Assuming you've created this
+from utils.model_trainer import ModelTrainer
 
 def main():
     # Configure logging
@@ -34,10 +35,18 @@ def main():
 
         X_features = pd.DataFrame(X_transformed)
 
+        trainer = ModelTrainer(X_features, y_cleaned)
+        results = trainer.train_models()
+
         # Show preview
         print("✅ Pipeline ran successfully.")
         print("Final features preview:")
         print(X_features.head())
+        print("📊 Model training results:")
+        for model_name, metrics in results.items():
+            print(f"\n🧠 {model_name}:")
+            for metric, val in metrics.items():
+                print(f"  {metric}: {val}")
 
     except Exception as e:
         logging.error(f"❌ Pipeline failed: {str(e)}")
