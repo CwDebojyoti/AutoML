@@ -2,3 +2,5 @@ myenv/
 logs/
 *.pyc
 data/
+models/
+reports/

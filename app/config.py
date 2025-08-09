@@ -55,6 +55,78 @@ REGRESSORS = {
 }
 
 # ----------------------------
+# Grid search parameter grids (used by GridSearchCV)
+# ----------------------------
+GRID_SEARCH_PARAMS = {
+    # --- Classifiers ---
+    "LogisticRegression": {
+        "C": [0.01, 0.1, 1.0, 10.0],
+        "max_iter": [100, 200]
+    },
+    "DecisionTreeClassifier": {
+        "max_depth": [None, 5, 10, 20],
+        "min_samples_split": [2, 5, 10],
+        "min_samples_leaf": [1, 2, 4]
+    },
+    "RandomForestClassifier": {
+        "n_estimators": [50, 100],
+        "max_depth": [None, 10, 20],
+        "min_samples_leaf": [1, 2],
+        "min_samples_split": [2, 5]
+    },
+    "SVC": {
+        "C": [0.1, 1.0, 10.0],
+        "kernel": ["rbf", "linear"],
+        "gamma": ["scale", "auto"]
+    },
+    "KNeighborsClassifier": {
+        "n_neighbors": [3, 5, 7],
+        "weights": ["uniform", "distance"],
+        "p": [1, 2]  # 1 = Manhattan, 2 = Euclidean
+    },
+    "XGBClassifier": {
+        "n_estimators": [50, 100],
+        "max_depth": [3, 6],
+        "learning_rate": [0.01, 0.1],
+        "subsample": [0.8, 1.0]
+    },
+
+    # --- Regressors ---
+    "LinearRegression": {
+        "fit_intercept": [True, False]
+    },
+    "DecisionTreeRegressor": {
+        "max_depth": [None, 5, 10, 20],
+        "min_samples_split": [2, 5, 10],
+        "min_samples_leaf": [1, 2, 4]
+    },
+    "RandomForestRegressor": {
+        "n_estimators": [50, 100],
+        "max_depth": [None, 10, 20],
+        "min_samples_leaf": [1, 2],
+        "min_samples_split": [2, 5]
+    },
+    "SVR": {
+        "C": [0.1, 1.0, 10.0],
+        "kernel": ["rbf", "linear"],
+        "gamma": ["scale", "auto"],
+        "epsilon": [0.01, 0.1, 0.2]
+    },
+    "KNeighborsRegressor": {
+        "n_neighbors": [3, 5, 7],
+        "weights": ["uniform", "distance"],
+        "p": [1, 2]
+    },
+    "XGBRegressor": {
+        "n_estimators": [50, 100],
+        "max_depth": [3, 6],
+        "learning_rate": [0.01, 0.1],
+        "subsample": [0.8, 1.0]
+    }
+}
+
+
+# ----------------------------
 # Model Parameters
 # ----------------------------
 MODEL_PARAMS = {
