@@ -4,6 +4,7 @@ import logging
 import numpy as np
 import pandas as pd
 import joblib
+import datetime
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import accuracy_score, classification_report, mean_squared_error, r2_score
@@ -72,7 +73,7 @@ class ModelTrainer:
                 logging.warning(f"Could not set MODEL_PARAMS for {name}: {e}")
             
 
-    def train_models(self):
+    def train_models(self, dataset_name):
         try:
             X_train, X_test, y_train, y_test = train_test_split(
                 self.X, self.y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=self.y if self.is_classification else None
@@ -81,6 +82,9 @@ class ModelTrainer:
             models = CLASSIFIERS if self.is_classification else REGRESSORS
             cv = self._get_cv()
             results = {}
+
+            # Get timestamp
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
             for name, model in models.items():
                 logging.info(f"Training model: {name}")
@@ -120,7 +124,7 @@ class ModelTrainer:
                 details.update(eval_metrics)
                 results[name] = details
 
-                model_fname = os.path.join(MODEL_DIR, f"{name}_best.pkl")
+                model_fname = os.path.join(MODEL_DIR, f"{name}_{dataset_name}_{timestamp}_best.pkl")
                 try:
                     joblib.dump(best_model, model_fname)
                     logging.info(f"Saved {name} to {model_fname}")

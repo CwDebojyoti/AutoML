@@ -13,7 +13,7 @@ from app.utils.model_evaluator import ModelEvaluator
 from app.utils.report_generator import ReportGenerator
 from app.config import MODEL_DIR
 
-def main(file_path, target_column, features_to_drop):
+def main(file_path, target_column, features_to_drop, dataset_name):
     # Configure logging
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -48,7 +48,7 @@ def main(file_path, target_column, features_to_drop):
             logging.info("Target variable encoded using LabelEncoder.")
 
         trainer = ModelTrainer(X_features, y_cleaned)
-        results, X_train, X_test, y_train, y_test = trainer.train_models()
+        results, X_train, X_test, y_train, y_test = trainer.train_models(dataset_name)
 
 
         # Step 5: Evaluate models
@@ -56,10 +56,20 @@ def main(file_path, target_column, features_to_drop):
         evaluator = ModelEvaluator(trainer.is_classification)
 
         for model_name in results.keys():
-            model_path = os.path.join(MODEL_DIR, f"{model_name}_best.pkl")
-            if not os.path.exists(model_path):
-                logging.warning(f"Model file {model_path} not found, skipping.")
+            # model_path = os.path.join(MODEL_DIR, f"{model_name}_best.pkl")
+            # if not os.path.exists(model_path):
+            #     logging.warning(f"Model file {model_path} not found, skipping.")
+            #     continue
+
+            files = [
+                f for f in os.listdir(MODEL_DIR)
+                if f.startswith(f"{model_name}_{dataset_name}_") and f.endswith("_best.pkl")]
+            if not files:
+                logging.warning(f"No model file found for {model_name} and dataset {dataset_name}, skipping.")
                 continue
+            # Pick the latest file by timestamp (sorted descending)
+            files.sort(reverse=True)
+            model_path = os.path.join(MODEL_DIR, files[0])
 
             model = joblib.load(model_path)
             summary = evaluator.evaluate_and_save(

@@ -52,13 +52,15 @@ def run_automl():
         os.makedirs("uploads", exist_ok=True)
         file.save(save_path)
 
+        dataset_name = os.path.splitext(file.filename)[0]
+
         # Call your main pipeline here
         # You can import and call your main() with parameters
         # For example:
         # main_pipeline(file_path=save_path, target_column=target_column, features_to_drop=drop_columns)
 
         from app.main import main as run_pipeline
-        result = run_pipeline(save_path, target_column, features_to_drop)
+        result = run_pipeline(save_path, target_column, features_to_drop, dataset_name)
 
         session["automl_results"] = result
 
