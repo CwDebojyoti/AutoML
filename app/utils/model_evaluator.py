@@ -71,9 +71,12 @@ class ModelEvaluator:
 
     def evaluate_and_save(self, model_name, model, X_train, y_train, X_test, y_test):
         try:
+            
             ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            """
             save_dir = os.path.join(REPORT_DIR, f"{model_name}_{ts}")
             os.makedirs(save_dir, exist_ok=True)
+            """
 
             y_pred = model.predict(X_test)
             y_proba = None
@@ -87,7 +90,8 @@ class ModelEvaluator:
             if self.is_classification:
                 metrics = self._classification_metrics(y_test, y_pred, y_proba)
                 labels = np.unique(np.concatenate([y_test, y_pred]))
-                cm_path = self._plot_confusion_matrix(y_test, y_pred, labels, os.path.join(save_dir, "confusion.png"))
+                # cm_path = self._plot_confusion_matrix(y_test, y_pred, labels, os.path.join(save_dir, "confusion.png"))
+                cm_path = None
             else:
                 metrics = self._regression_metrics(y_test, y_pred)
                 cm_path = None
@@ -104,10 +108,11 @@ class ModelEvaluator:
                 "metrics": metrics,
                 "artifacts": {"confusion_matrix": cm_path} if cm_path else {}
             }
+            """
             summary_path = os.path.join(save_dir, "summary.json")
             with open(summary_path, "w") as f:
                 json.dump(summary, f, indent=2)
-
+            """
             return summary
         except Exception as e:
             raise CustomException(e, sys)

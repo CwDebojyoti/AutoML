@@ -73,11 +73,13 @@ def main(file_path, target_column, features_to_drop):
             summaries.append(summary)
 
         # Step 6: Generate reports
+        """
         report_gen = ReportGenerator()
         html_report = report_gen.generate_html_report(summaries)
         logging.info(f"HTML report generated at: {html_report}")
-        # pdf_report = report_gen.generate_pdf_report(summaries)
-        # logging.info(f"PDF report generated at: {pdf_report}")
+        pdf_report = report_gen.generate_pdf_report(summaries)
+        logging.info(f"PDF report generated at: {pdf_report}")
+        """
 
         # Show preview
         print("✅ Pipeline ran successfully.")
@@ -88,6 +90,8 @@ def main(file_path, target_column, features_to_drop):
             print(f"\n🧠 {model_name}:")
             for metric, val in metrics.items():
                 print(f"  {metric}: {val}")
+
+        return summaries
 
     except Exception as e:
         logging.error(f"❌ Pipeline failed: {str(e)}")

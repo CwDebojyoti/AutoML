@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 import numpy as np
 import pandas as pd
 import os
@@ -8,6 +8,8 @@ from app.utils.data_loader import DataLoader
 import traceback
 
 app = Flask(__name__)
+
+app.secret_key = "asfashdaskhkashk"
 
 @app.route("/")
 def home():
@@ -58,15 +60,25 @@ def run_automl():
         from app.main import main as run_pipeline
         result = run_pipeline(save_path, target_column, features_to_drop)
 
+        session["automl_results"] = result
+
         return jsonify({
             "status": "success",
-            "report_url": "reports/all_models_report.html"
+            "report_url": url_for("view_report")
         })
 
     except Exception as e:
         print("Error in /run_automl route:")
         traceback.print_exc()  # This will show the exact error in Flask console
         return jsonify({"error": str(e)}), 500
+    
+    
+@app.route("/view_report", methods=["GET"])
+def view_report():
+    results = session.get("automl_results")
+    if not results:
+        return "No report available. Please run AutoML first.", 400
+    return render_template("report.html", results=results)
 
 
 
