@@ -6,6 +6,8 @@ import logging
 import datetime
 import numpy as np
 import pandas as pd
+import joblib
+from io import BytesIO
 from google.cloud import storage
 import tempfile
 import matplotlib.pyplot as plt
@@ -119,30 +121,23 @@ class ModelEvaluator:
         except Exception as e:
             raise CustomException(e, sys)
         
-        
-    def get_latest_model_from_gcs(self, bucket_name, dataset_name, model_name):
+    
+    def load_model_from_gcs(self, bucket_name, blob_name):
         client = storage.Client()
         bucket = client.bucket(bucket_name)
-
-        prefix = f"models/{dataset_name}/{model_name}_{dataset_name}_"
-        blobs = list(bucket.list_blobs(prefix=prefix))
-
-        model_files = [
-            blob.name for blob in blobs
-            if blob.name.startswith(f"models/{dataset_name}/{model_name}_{dataset_name}_") and blob.name.endswith("_best.pkl")
-        ]
-
-        if not model_files:
-            logging.warning(f"No model file found for {model_name} and dataset {dataset_name}, skipping.")
-            return None
+        blob = bucket.blob(blob_name)
+        data = blob.download_as_bytes()
+        return joblib.load(BytesIO(data))
         
-        model_files.sort(reverse=True)
-        latest_model_blob_name = model_files[0]
-
-        # Download to a temporary local file
-        local_path = os.path.join(tempfile.gettempdir(), os.path.basename(latest_model_blob_name))
-        bucket.blob(latest_model_blob_name).download_to_filename(local_path)
-
-        logging.info(f"Downloaded latest model from GCS: {latest_model_blob_name} -> {local_path}")
-        return local_path
+        
+    def get_latest_model_blob_name(self, bucket_name, dataset_name, model_name):
+        client = storage.Client()
+        bucket = client.bucket(bucket_name)
+        prefix = f"models/{dataset_name}/"
+        blobs = list(bucket.list_blobs(prefix=prefix))
+        candidates = [b.name for b in blobs if b.name.startswith(f"{prefix}{model_name}_") and b.name.endswith("_best.pkl")]
+        if not candidates:
+            return None
+        candidates.sort(reverse=True)
+        return candidates[0]
 

@@ -61,11 +61,11 @@ def main(file_path, target_column, features_to_drop, dataset_name):
             #     logging.warning(f"Model file {model_path} not found, skipping.")
             #     continue
 
-            model_path = evaluator.get_latest_model_from_gcs(GCS_BUCKET_NAME, dataset_name, model_name)
-            if not model_path:
+            blob_name = evaluator.get_latest_model_blob_name(GCS_BUCKET_NAME, dataset_name, model_name)
+            if not blob_name:
+                logging.warning(f"No model found for {model_name} in GCS.")
                 continue
-
-            model = joblib.load(model_path)
+            model = evaluator.load_model_from_gcs(GCS_BUCKET_NAME, blob_name)
             summary = evaluator.evaluate_and_save(
                 model_name=model_name,
                 model=model,
