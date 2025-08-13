@@ -5,13 +5,15 @@ import numpy as np
 import pandas as pd
 import joblib
 import datetime
+from io import BytesIO
+from google.cloud import storage
 from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold, KFold
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import accuracy_score, classification_report, mean_squared_error, r2_score
 from app.exception_logging.exception import CustomException
 from app.config import (
     CLASSIFIERS, REGRESSORS, MODEL_PARAMS, GRID_SEARCH_PARAMS,
-    TEST_SIZE, RANDOM_STATE, CROSS_VAL_FOLDS, MODEL_DIR
+    TEST_SIZE, RANDOM_STATE, CROSS_VAL_FOLDS, MODEL_DIR, GCS_BUCKET_NAME
 )
 
 
@@ -71,6 +73,19 @@ class ModelTrainer:
                 logging.info(f"Applied custom params for {name}: {MODEL_PARAMS[name]}")
             except Exception as e:
                 logging.warning(f"Could not set MODEL_PARAMS for {name}: {e}")
+
+
+    def upload_model_to_gcs(self, bucket_name, destination_blob_name, model):
+        client = storage.Client()
+        bucket = client.bucket(bucket_name)
+        blob = bucket.blob(destination_blob_name)
+
+        buffer = BytesIO()
+        joblib.dump(model, buffer)
+        buffer.seek(0)  # Reset buffer position to the beginning
+
+        blob.upload_from_file(buffer, content_type='application/octet-stream')
+        logging.info(f"Model uploaded to GCS at gs://{bucket_name}/{destination_blob_name}")
             
 
     def train_models(self, dataset_name):
@@ -124,12 +139,14 @@ class ModelTrainer:
                 details.update(eval_metrics)
                 results[name] = details
 
-                model_fname = os.path.join(MODEL_DIR, f"{name}_{dataset_name}_{timestamp}_best.pkl")
+                gcs_bucket = GCS_BUCKET_NAME
+                gcs_path = f"models/{dataset_name}/{name}_{dataset_name}_{timestamp}_best.pkl"
+
                 try:
-                    joblib.dump(best_model, model_fname)
-                    logging.info(f"Saved {name} to {model_fname}")
+                    self.upload_model_to_gcs(gcs_bucket, gcs_path, best_model)
                 except Exception as e:
-                    logging.warning(f"Failed to save model {name}: {e}") 
+                    logging.warning(f"Failed to upload model {name} to GCS: {e}")
+ 
 
 
                 # Apply custom params if available

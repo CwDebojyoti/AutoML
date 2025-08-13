@@ -14,6 +14,7 @@ DATA_DIR = "data/"
 REPORT_DIR = "reports/"
 MODEL_DIR = "models/"
 LOG_FILE = "logs/app.log"
+GCS_BUCKET_NAME = "deb_automl"
 
 # Ensure required directories exist
 for directory in [DATA_DIR, REPORT_DIR, MODEL_DIR, os.path.dirname(LOG_FILE)]:

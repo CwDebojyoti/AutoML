@@ -11,7 +11,7 @@ from app.utils.feature_selection import FeatureSelector  # Assuming you've creat
 from app.utils.model_trainer import ModelTrainer
 from app.utils.model_evaluator import ModelEvaluator
 from app.utils.report_generator import ReportGenerator
-from app.config import MODEL_DIR
+from app.config import MODEL_DIR, GCS_BUCKET_NAME
 
 def main(file_path, target_column, features_to_drop, dataset_name):
     # Configure logging
@@ -61,15 +61,9 @@ def main(file_path, target_column, features_to_drop, dataset_name):
             #     logging.warning(f"Model file {model_path} not found, skipping.")
             #     continue
 
-            files = [
-                f for f in os.listdir(MODEL_DIR)
-                if f.startswith(f"{model_name}_{dataset_name}_") and f.endswith("_best.pkl")]
-            if not files:
-                logging.warning(f"No model file found for {model_name} and dataset {dataset_name}, skipping.")
+            model_path = evaluator.get_latest_model_from_gcs(GCS_BUCKET_NAME, dataset_name, model_name)
+            if not model_path:
                 continue
-            # Pick the latest file by timestamp (sorted descending)
-            files.sort(reverse=True)
-            model_path = os.path.join(MODEL_DIR, files[0])
 
             model = joblib.load(model_path)
             summary = evaluator.evaluate_and_save(

@@ -5,3 +5,4 @@ matplotlib
 flask
 xgboost
 weasyprint==66.0
+google-cloud-storage
