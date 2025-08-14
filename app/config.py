@@ -102,27 +102,27 @@ GRID_SEARCH_PARAMS = {
         "min_samples_leaf": [1, 2, 4]
     },
     "RandomForestRegressor": {
-        "n_estimators": [50, 100],
-        "max_depth": [None, 10, 20],
-        "min_samples_leaf": [1, 2],
-        "min_samples_split": [2, 5]
+        "n_estimators": [50],
+        "max_depth": [None, 10],
+        "min_samples_leaf": [1],
+        "min_samples_split": [2]
     },
     "SVR": {
-        "C": [0.1, 1.0, 10.0],
-        "kernel": ["rbf", "linear"],
-        "gamma": ["scale", "auto"],
-        "epsilon": [0.01, 0.1, 0.2]
+        "C": [0.1],
+        "kernel": ["linear"],
+        "gamma": ["auto"],
+        "epsilon": [0.01]
     },
     "KNeighborsRegressor": {
-        "n_neighbors": [3, 5, 7],
-        "weights": ["uniform", "distance"],
-        "p": [1, 2]
+        "n_neighbors": [3],
+        "weights": ["uniform"],
+        "p": [1]
     },
     "XGBRegressor": {
-        "n_estimators": [50, 100],
-        "max_depth": [3, 6],
-        "learning_rate": [0.01, 0.1],
-        "subsample": [0.8, 1.0]
+        "n_estimators": [50],
+        "max_depth": [3],
+        "learning_rate": [0.01],
+        "subsample": [0.8]
     }
 }
 

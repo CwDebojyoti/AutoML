@@ -63,6 +63,7 @@ def run_automl():
         blob = bucket.blob(blob_name)
         data = blob.download_as_bytes()
         save_path = BytesIO(data)
+        save_path.seek(0)  # Reset pointer to start
 
         from app.main import main as run_pipeline
         result = run_pipeline(save_path, target_column, features_to_drop, dataset_name)

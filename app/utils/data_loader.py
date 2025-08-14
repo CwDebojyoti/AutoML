@@ -25,6 +25,7 @@ class DataLoader:
         try:
             # If file_source is a string, treat as file path
             if isinstance(self.file_source, str):
+                self.file_source.seek(0)
                 ext = os.path.splitext(self.file_source)[-1].lower()
                 if ext != '.csv':
                     raise ValueError(f"Unsupported file type: {ext}. Only .csv files are supported.")
@@ -34,6 +35,7 @@ class DataLoader:
                 logging.info(f"Data loaded successfully from {self.file_source}")
             else:
                 # Assume file-like object (BytesIO)
+                self.file_source.seek(0)  # Reset pointer to start
                 data = pd.read_csv(self.file_source)
                 logging.info("Data loaded successfully from file-like object (e.g., GCS BytesIO)")
 

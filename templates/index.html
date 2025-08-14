@@ -50,6 +50,12 @@
             </form>
 
             <hr class="my-4">
+            <div id="loadingSpinner" class="text-center my-4" style="display:none;">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Processing...</span>
+              </div>
+              <p class="mt-2">Running AutoML pipeline, please wait...</p>
+            </div>
             <div id="result" class="text-center"></div>
           </div>
         </div>
@@ -117,23 +123,36 @@
       const formData = new FormData(this);
 
       // Collect selected drop columns from checkboxes
-      const dropCols = [];
       document.querySelectorAll('input[name="dropColumns"]:checked').forEach(cb => {
-        dropCols.push(cb.value);
-      });
-      formData.append("dropColumns", JSON.stringify(dropCols));
-
-      const response = await fetch("/run_automl", {
-        method: "POST",
-        body: formData
+        formData.append("drop_columns[]", cb.value); // matches backend key
       });
 
-      const result = await response.json();
-      document.getElementById("result").innerHTML = `
-    <h4 class="mt-4">AutoML Run Completed</h4>
-    <p><strong>Status:</strong> ${result.status}</p>
-    <a href="${result.report_url}" class="btn btn-success mt-2">View Report</a>
-  `;
+      // Show loading spinner
+      document.getElementById("loadingSpinner").style.display = "block";
+      document.getElementById("result").innerHTML = "";
+
+      try {
+        const response = await fetch("/run_automl", {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await response.json();
+
+        document.getElementById("result").innerHTML = `
+      <h4 class="mt-4">AutoML Run Completed</h4>
+      <p><strong>Status:</strong> ${result.status}</p>
+      <a href="${result.report_url}" class="btn btn-success mt-2">View Report</a>
+    `;
+
+      } catch (error) {
+        document.getElementById("result").innerHTML = `
+      <p class="text-danger">Error: ${error.message}</p>
+    `;
+      } finally {
+        // Always hide spinner, even on error
+        document.getElementById("loadingSpinner").style.display = "none";
+      }
     });
 
   </script>
