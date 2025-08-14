@@ -13,7 +13,7 @@ from app.utils.model_evaluator import ModelEvaluator
 from app.utils.report_generator import ReportGenerator
 from app.config import MODEL_DIR, GCS_BUCKET_NAME
 
-def main(file_path, target_column, features_to_drop, dataset_name):
+def main(file_source, target_column, features_to_drop, dataset_name):
     # Configure logging
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -21,7 +21,7 @@ def main(file_path, target_column, features_to_drop, dataset_name):
         # Step 1: Load data
         #file_path = "data/Breast_cancer_dataset.csv"  # or any CSV you're testing with
         #target_column = "diagnosis"     # make sure this exists in the dataset
-        loader = DataLoader(file_path, target_column)
+        loader = DataLoader(file_source, target_column)
         data, X, y, tc = loader.load_data()
 
         # Step 2: Clean data

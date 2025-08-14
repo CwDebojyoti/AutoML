@@ -4,6 +4,9 @@ import pandas as pd
 import os
 from PIL import Image
 import json
+from google.cloud import storage
+from io import BytesIO
+from app.config import GCS_BUCKET_NAME
 from app.utils.data_loader import DataLoader
 import traceback
 
@@ -15,18 +18,24 @@ app.secret_key = "asfashdaskhkashk"
 def home():
     return render_template('index.html')
 
+
+
 @app.route("/upload_data", methods=["POST"])
 def get_columns():
     try:
         file = request.files["file"]
-        save_path = os.path.join("uploads", file.filename)
-        os.makedirs("uploads", exist_ok=True)
-        file.save(save_path)
+        bucket_name = GCS_BUCKET_NAME
+        blob_name = f"uploads/{file.filename}"
+        loader = DataLoader(file_source=None, target_column="")
+        loader.upload_files_to_gcs(file, bucket_name, blob_name)
 
-        # Use DataLoader to load data
-        loader = DataLoader(file_path=save_path, target_column="")  # Temporarily empty target
-        data = pd.read_csv(save_path)  # Just to avoid empty target_column issue
-        column_names = list(data.columns)
+        # Download file from GCS to memory for column extraction
+        client = storage.Client()
+        bucket = client.bucket(bucket_name)
+        blob = bucket.blob(blob_name)
+        data = blob.download_as_bytes()
+        df = pd.read_csv(BytesIO(data))
+        column_names = list(df.columns)
 
         return jsonify(column_names)
 
@@ -39,25 +48,21 @@ def get_columns():
 def run_automl():
     try:
         file = request.files.get("file")
-        if not file:
-            return jsonify({"error": "No file uploaded"}), 400
-
         target_column = request.form.get("target_column")
-        if not target_column:
-            return jsonify({"error": "No target column selected"}), 400
+        features_to_drop = request.form.getlist("drop_columns[]")
 
-        features_to_drop = request.form.getlist("drop_columns[]")  # checkbox values
-
-        save_path = os.path.join("uploads", file.filename)
-        os.makedirs("uploads", exist_ok=True)
-        file.save(save_path)
-
+        bucket_name = GCS_BUCKET_NAME
+        blob_name = f"uploads/{file.filename}"
+        loader = DataLoader(file_source=None, target_column="")
+        loader.upload_files_to_gcs(file, bucket_name, blob_name)
         dataset_name = os.path.splitext(file.filename)[0]
 
-        # Call your main pipeline here
-        # You can import and call your main() with parameters
-        # For example:
-        # main_pipeline(file_path=save_path, target_column=target_column, features_to_drop=drop_columns)
+        # Download file from GCS for processing
+        client = storage.Client()
+        bucket = client.bucket(bucket_name)
+        blob = bucket.blob(blob_name)
+        data = blob.download_as_bytes()
+        save_path = BytesIO(data)
 
         from app.main import main as run_pipeline
         result = run_pipeline(save_path, target_column, features_to_drop, dataset_name)
